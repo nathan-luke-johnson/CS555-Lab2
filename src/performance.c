@@ -9,7 +9,8 @@
 int main(int argc, char *argv[])
 {   
   int myRank, size;
-
+  
+  // If there are not enough args, then just quit
   if(argc<3)
   {
     return 1;
@@ -25,7 +26,8 @@ int main(int argc, char *argv[])
 
 
   char* sendBuffer = malloc(sizeof(char)*lenArrayElem*numArrayElems);
-  char* recvBuffer = malloc(sizeof(char)*lenArrayElem*numArrayElems);
+  char* recvBuffer = malloc(sizeof(char)*lenArrayElem);
+  char* finalBuffer = malloc(sizeof(char)*lenArrayElem*numArrayElems);
   int i,j;
 
   if (myRank==0)
@@ -39,8 +41,12 @@ int main(int argc, char *argv[])
         sendBuffer[i*lenArrayElem+j] = 'a'+i;
       }
     }
+   //finalBuffer = malloc(sizeof(char)*lenArrayElem*numArrayElems);
     //printf("sendBuffer: %s\n",sendBuffer);
   }
+  
+  double startTime, midTime, endTime;
+  startTime = MPI_Wtime();
 
   MPI_Scatter(
     sendBuffer,
@@ -51,19 +57,34 @@ int main(int argc, char *argv[])
     MPI_CHAR,
     0,
     MPI_COMM_WORLD);
-
+  
+  midTime = MPI_Wtime();
   //printf("Proc %d received %s\n",myRank,recvBuffer);
 
   MPI_Gather(
-    sendBuffer,
+    recvBuffer,
     lenArrayElem,
     MPI_CHAR,
-    recvBuffer,
+    finalBuffer,
     lenArrayElem,
     MPI_CHAR,
     0,
     MPI_COMM_WORLD);
+  
+  endTime = MPI_Wtime();
 
+  printf("Proc %d scatter time: %f\n",myRank, midTime-startTime);
+  printf("Proc %d gather time: %f\n",myRank, endTime-midTime);
+
+  //if(myRank == 0)
+  //{
+  //  printf("%s\n",finalBuffer);
+  //}
+  
+  // Cleanup step
+  free(sendBuffer);
+  free(recvBuffer);
+  free(finalBuffer);
   MPI_Finalize();
   return 0;
 }

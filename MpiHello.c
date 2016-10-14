@@ -1,4 +1,4 @@
-/* Mpi Hello World Program - MpiHello.c */
+ /* Mpi Hello World Program - MpiHello.c */
 
 #include <mpi.h>
 #include <stdio.h>

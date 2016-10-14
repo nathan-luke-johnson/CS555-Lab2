@@ -3,11 +3,11 @@
 mpicc -g src/performance.c -o bin/performance
 
 echo ""
-echo "2500 messages, 640000 chars"
-mpiexec -np 2 ./bin/performance 2500 640000
+echo "1 message, 0 chars"
+mpiexec -np 2 ./bin/performance 1 0
 echo ""
-echo "5000 messages, 320000 chars"
-mpiexec -np 2 ./bin/performance 5000 320000
+echo "1 messages, 5120000 chars"
+mpiexec -np 2 ./bin/performance 1 5120000
 echo ""
 echo "10000 messages, 160000 chars"
 mpiexec -np 2 ./bin/performance 10000 160000

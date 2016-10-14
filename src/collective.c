@@ -49,7 +49,8 @@ int main(int argc, char *argv[])
     //printf("sendBuffer: %s\n",sendBuffer);
   }
   
-  if (myRank== 0) { startTime = MPI_Wtime(); }
+  MPI_Barrier(MPI_COMM_WORLD);
+  startTime = MPI_Wtime(); 
   
   for(i = 0; i < numArrayElems*lenArrayElem; i+=lenArrayElem*size)
   {
@@ -77,12 +78,9 @@ int main(int argc, char *argv[])
       MPI_COMM_WORLD);
   }
   
-  if(myRank == 0) {
-    endTime = MPI_Wtime();
-    printf("The operation took %f seconds.\n", endTime - startTime);
-    //printf("sent    : %s\n", sendBuffer);
-    //printf("received: %s\n", finalBuffer);
-  }
+  endTime = MPI_Wtime();
+  MPI_Barrier(MPI_COMM_WORLD);
+  printf("The operation took %f seconds on Processor %d\n", endTime - startTime, myRank);
   // Cleanup step
   free(sendBuffer);
   free(recvBuffer);

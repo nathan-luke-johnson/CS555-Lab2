@@ -3,14 +3,11 @@
 mpicc -g src/performance.c -o bin/performance
 
 echo ""
-echo "2 processors"
-mpiexec -np 2 ./bin/performance 2 100
+echo "20 messages, 80 chars"
+mpiexec -np 2 ./bin/performance 20 80
 echo ""
-echo "4 processors"
-mpiexec -np 4 ./bin/performance 4 100
+echo "40 messages, 40 chars"
+mpiexec -np 2 ./bin/performance 40 40
 echo ""
-echo "8 processors"
-mpiexec -np 8 ./bin/performance 8 100
-echo ""
-echo "16 processors"
-mpiexec -np 16 ./bin/performance 16 100
+echo "80 messages, 20 chars"
+mpiexec -np 2 ./bin/performance 80 20

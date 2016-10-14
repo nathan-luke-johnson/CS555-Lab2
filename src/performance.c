@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
   if (size<2) MPI_Abort(MPI_COMM_WORLD, 1);
 
 
-  char* sendBuffer = malloc(sizeof(char)*lenArrayElem*numArrayElems+1);
+  char* sendBuffer = (char*) malloc(sizeof(char)*(lenArrayElem*numArrayElems+1));
   sendBuffer[lenArrayElem*numArrayElems]='\0';
-  char* recvBuffer = malloc(sizeof(char)*lenArrayElem+1);
+  char* recvBuffer = (char*) malloc(sizeof(char)*(lenArrayElem*numArrayElems+1));
   recvBuffer[lenArrayElem*numArrayElems]='\0';
   int i,j;
 
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     for(i = 0; i < numArrayElems; i++)
     {
       MPI_Send(
-        &sendBuffer[lenArrayElem*i],
+        &(sendBuffer[lenArrayElem*i]),
         lenArrayElem,
         MPI_CHAR,
         1,
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     for(i = 0; i < numArrayElems; i++)
     { 
       MPI_Recv(
-        &recvBuffer[lenArrayElem*i],
+        &(recvBuffer[lenArrayElem*i]),
         lenArrayElem,
         MPI_CHAR,
         1,
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     for(i = 0; i < numArrayElems; i++)
     {
       MPI_Recv(
-        &recvBuffer[lenArrayElem*i],
+        &(recvBuffer[lenArrayElem*i]),
         lenArrayElem,
         MPI_CHAR,
         0,
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     for(i = 0; i < numArrayElems; i++)
     {
       MPI_Send(
-        &recvBuffer[lenArrayElem*i],
+        &(recvBuffer[lenArrayElem*i]),
         lenArrayElem,
         MPI_CHAR,
         0,
@@ -98,8 +98,8 @@ int main(int argc, char *argv[])
     }
   }
 
-//  free(sendBuffer);
-//  free(recvBuffer);
+  free(sendBuffer);
+  free(recvBuffer);
   MPI_Finalize();
   return 0;
 }

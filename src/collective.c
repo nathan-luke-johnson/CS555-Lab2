@@ -25,11 +25,15 @@ int main(int argc, char *argv[])
   if (size<2) MPI_Abort(MPI_COMM_WORLD, 1);
 
 
-  char* sendBuffer = malloc(sizeof(char)*lenArrayElem*numArrayElems);
-  char* recvBuffer = malloc(sizeof(char)*lenArrayElem);
-  char* finalBuffer = malloc(sizeof(char)*lenArrayElem*numArrayElems);
+  char* sendBuffer = malloc(sizeof(char)*(lenArrayElem*numArrayElems+1));
+  char* recvBuffer = malloc(sizeof(char)*(lenArrayElem*numArrayElems+1));
+  char* finalBuffer = malloc(sizeof(char)*(lenArrayElem*numArrayElems+1));
+  sendBuffer[lenArrayElem*numArrayElems]='\0';
+  recvBuffer[lenArrayElem*numArrayElems]='\0';
+  finalBuffer[lenArrayElem*numArrayElems]='\0';
   int i,j;
-
+  double startTime = 0.0;
+  double endTime = 0.0;
   if (myRank==0)
   {
     //printf("Hello World - I'm the master\n");
@@ -38,49 +42,47 @@ int main(int argc, char *argv[])
     {
       for(j = 0; j < lenArrayElem; j++) 
       {
-        sendBuffer[i*lenArrayElem+j] = 'a'+i;
+        sendBuffer[i*lenArrayElem+j] = '0'+i;
       }
     }
    //finalBuffer = malloc(sizeof(char)*lenArrayElem*numArrayElems);
     //printf("sendBuffer: %s\n",sendBuffer);
   }
   
-  double startTime, midTime, endTime;
-  startTime = MPI_Wtime();
-
-  MPI_Scatter(
-    sendBuffer,
-    lenArrayElem,
-    MPI_CHAR,
-    recvBuffer,
-    lenArrayElem,
-    MPI_CHAR,
-    0,
-    MPI_COMM_WORLD);
+  if (myRank== 0) { startTime = MPI_Wtime(); }
   
-  midTime = MPI_Wtime();
-  //printf("Proc %d received %s\n",myRank,recvBuffer);
+  for(i = 0; i < numArrayElems*lenArrayElem; i+=lenArrayElem*size)
+  {
+    MPI_Scatter(
+      &sendBuffer[i],
+      lenArrayElem,
+      MPI_CHAR,
+      &recvBuffer[i],
+      lenArrayElem,
+      MPI_CHAR,
+      0,
+      MPI_COMM_WORLD);
+  }
 
-  MPI_Gather(
-    recvBuffer,
-    lenArrayElem,
-    MPI_CHAR,
-    finalBuffer,
-    lenArrayElem,
-    MPI_CHAR,
-    0,
-    MPI_COMM_WORLD);
+  for(i = 0; i < numArrayElems*lenArrayElem; i+=lenArrayElem*size)
+  {
+    MPI_Gather(
+      &recvBuffer[i],
+      lenArrayElem,
+      MPI_CHAR,
+      &finalBuffer[i],
+      lenArrayElem,
+      MPI_CHAR,
+      0,
+      MPI_COMM_WORLD);
+  }
   
-  endTime = MPI_Wtime();
-
-  printf("Proc %d scatter time: %f\n",myRank, midTime-startTime);
-  printf("Proc %d gather time: %f\n",myRank, endTime-midTime);
-
-  //if(myRank == 0)
-  //{
-  //  printf("%s\n",finalBuffer);
-  //}
-  
+  if(myRank == 0) {
+    endTime = MPI_Wtime();
+    printf("The operation took %f seconds.\n", endTime - startTime);
+    //printf("sent    : %s\n", sendBuffer);
+    //printf("received: %s\n", finalBuffer);
+  }
   // Cleanup step
   free(sendBuffer);
   free(recvBuffer);
